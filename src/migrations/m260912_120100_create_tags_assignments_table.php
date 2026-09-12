@@ -24,9 +24,9 @@ use yii\base\NotSupportedException;
  * (`hasMany(TagAssignment)` с целым `id`), и строковая колонка при сравнении с числом теряла бы
  * индекс. Сущности со строковым первичным ключом к тегам не привязываются — осознанно.
  */
-class m260912_120100_create_tag_assignments_table extends BaseMigration
+class m260912_120100_create_tags_assignments_table extends BaseMigration
 {
-    public const string TABLE_NAME = '{{%tag_assignments}}';
+    public const string TABLE_NAME = '{{%tags_assignments}}';
 
     /**
      * @throws NotSupportedException
@@ -54,7 +54,7 @@ class m260912_120100_create_tag_assignments_table extends BaseMigration
         // Обратный проход «запись → её теги» (формы, карточки в списках).
         $this->createIndexes(static::TABLE_NAME, ['entity_type', 'entity_id']);
 
-        $this->createFKs(static::TABLE_NAME, 'tag_id', m260912_120000_create_tags_table::TABLE_NAME, 'id', 'CASCADE', 'CASCADE');
+        $this->createFKs(static::TABLE_NAME, 'tag_id', m260912_120000_create_tags_tags_table::TABLE_NAME, 'id', 'CASCADE', 'CASCADE');
     }
 
     /**

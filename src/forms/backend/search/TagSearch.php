@@ -36,8 +36,8 @@ class TagSearch extends BaseForm
     {
         $usage = TagAssignment::find()
             ->select('COUNT(*)')
-            ->andWhere('[[tag_assignments_usage]].[[tag_id]] = [[t]].[[id]]')
-            ->from(['tag_assignments_usage' => TagAssignment::tableName()]);
+            ->andWhere('[[tags_assignments_usage]].[[tag_id]] = [[t]].[[id]]')
+            ->from(['tags_assignments_usage' => TagAssignment::tableName()]);
 
         $query = Tag::find()->alias('t')
             ->select(['t.*', 'usage_count' => $usage])

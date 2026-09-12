@@ -43,6 +43,6 @@ class Tag extends ActiveRecord
 
     public static function tableName(): string
     {
-        return '{{%tags}}';
+        return '{{%tags_tags}}';
     }
 }

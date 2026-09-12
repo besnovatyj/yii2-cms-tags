@@ -18,9 +18,9 @@ use yii\base\NotSupportedException;
  * разных модулей при импорте (`tags/import`). Статуса у тега нет: тег «жив», пока на него есть хотя
  * бы одна видимая запись — это решает не колонка, а провайдеры (см. контракт TaggableProvider).
  */
-class m260912_120000_create_tags_table extends BaseMigration
+class m260912_120000_create_tags_tags_table extends BaseMigration
 {
-    public const string TABLE_NAME = '{{%tags}}';
+    public const string TABLE_NAME = '{{%tags_tags}}';
 
     /**
      * @throws NotSupportedException
