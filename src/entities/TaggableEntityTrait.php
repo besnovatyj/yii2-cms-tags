@@ -27,6 +27,7 @@ use yii\db\ActiveQuery;
  *
  * Дальше — обычный AR: `Post::find()->with('tags')`, `$post->tags`. Связь через `onCondition` по
  * `entity_type`, поэтому жадная загрузка одной выборкой работает как с обычной таблицей связей.
+ * Ключ типа доступен и сервису: `TagAssigner::sync(Post::tagType(), ...)`.
  */
 trait TaggableEntityTrait
 {
@@ -37,8 +38,10 @@ trait TaggableEntityTrait
 
     public function getTagAssignments(): ActiveQuery
     {
+        // Колонка без имени таблицы: модули подключают связь и через joinWith с алиасом
+        // (`joinWith(['tagAssignments ta'])`), а квалифицированное имя алиасу не соответствует.
         return $this->hasMany(TagAssignment::class, ['entity_id' => 'id'])
-            ->onCondition([TagAssignment::tableName() . '.entity_type' => static::tagType()]);
+            ->onCondition(['entity_type' => static::tagType()]);
     }
 
     public function getTags(): ActiveQuery
