@@ -10,14 +10,16 @@ namespace Besnovatyj\Tags\services;
 
 use Besnovatyj\Contracts\tags\TaggableProvider;
 use Besnovatyj\Contracts\tags\TagSource;
+use Besnovatyj\Kernel\module\ModuleFinder;
 use Yii;
 
 /**
  * Реестр провайдеров тегов: находит модули, реализующие {@see TaggableProvider}, и сводит их
  * источники в одну карту «тип → источник / провайдер».
  *
- * Обход зарегистрированных модулей с проверкой `instanceof` — тот же приём, что у поиска и меню:
- * модуль тегов не знает имён контентных модулей. Отключённый в modman модуль в конфиг не попадает,
+ * Обход зарегистрированных модулей по контракту ({@see ModuleFinder}) — тот же приём, что у поиска
+ * и меню: модуль тегов не знает имён контентных модулей, а инстанцируются только провайдеры.
+ * Отключённый в modman модуль в конфиг не попадает,
  * поэтому его типы исчезают из фасетов сами, а его связи в таблице становятся «ничьими» и просто
  * не показываются.
  */
@@ -85,11 +87,7 @@ final class TaggableRegistry
         $this->sources = [];
         $this->providers = [];
 
-        foreach (array_keys(Yii::$app->getModules()) as $id) {
-            $module = Yii::$app->getModule((string)$id);
-            if (!$module instanceof TaggableProvider) {
-                continue;
-            }
+        foreach (ModuleFinder::implementing(TaggableProvider::class) as $module) {
             foreach ($module->tagSources() as $source) {
                 if (isset($this->sources[$source->type])) {
                     Yii::warning("Источник тегов «{$source->type}» объявлен дважды; взят первый.", 'tags/registry');
