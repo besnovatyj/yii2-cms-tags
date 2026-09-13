@@ -59,7 +59,7 @@ class TagForm extends BaseForm
         return [
             [['name'], 'required'],
             [['name', 'slug'], 'string', 'max' => 255],
-            ['slug', SlugValidator::class],
+            ['slug', SlugValidator::class, 'allowLeadingDigit' => true],
             [['name', 'slug'], 'unique', 'targetClass' => Tag::class,
                 'filter' => $this->_tag ? ['<>', 'id', $this->_tag->id] : null],
         ];
