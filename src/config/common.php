@@ -11,6 +11,7 @@ use Besnovatyj\Tags\readModels\TagReadRepository;
 use Besnovatyj\Tags\services\PopularTagsService;
 use Besnovatyj\Tags\services\TaggableRegistry;
 use Besnovatyj\Tags\settings\TagSettings;
+use Besnovatyj\Validators\SlugValidator;
 use yii\di\Container;
 
 /**
@@ -23,7 +24,8 @@ use yii\di\Container;
  *
  * URL-правила — вклад в `frontendUrlManager` (компонент есть и во фронте, и в бэкенде, поэтому
  * группа `common`): `/tags` — облако, `/tag/<slug>` — страница тега (фильтр по типу и пагинация
- * через query: `?type=blog.post&page=2`). Slug начинается с буквы — конвенция SlugValidator.
+ * через query: `?type=blog.post&page=2`). Слаг тега — {@see SlugValidator::SLUG_ANY}: тег живёт в своём
+ * сегменте и с числовым `<id>` не конкурирует, поэтому может начинаться с цифры.
  */
 return [
     'modules' => [
@@ -36,8 +38,8 @@ return [
     'components' => [
         'frontendUrlManager' => [
             'rules' => [
-                'tags'                   => 'Tags/tag/index',
-                'tag/<slug:[a-z][\w\-]*>' => 'Tags/tag/view',
+                'tags'                                       => 'Tags/tag/index',
+                'tag/<slug:' . SlugValidator::SLUG_ANY . '>' => 'Tags/tag/view',
             ],
         ],
     ],
