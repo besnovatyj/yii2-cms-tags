@@ -12,7 +12,7 @@ declare(strict_types=1);
 return [
     'tags_per_page' => [
         'path'        => 'modules.Tags.params.perPage',
-        'label'       => '[Tags] Записей на странице тега',
+        'label'       => 'Записей на странице тега',
         'category'    => 'Tags',
         'rules'       => [
             ['required'],
@@ -23,7 +23,7 @@ return [
 
     'tags_cloud_limit' => [
         'path'        => 'modules.Tags.params.cloudLimit',
-        'label'       => '[Tags] Тегов в облаке',
+        'label'       => 'Тегов в облаке',
         'category'    => 'Tags',
         'rules'       => [
             ['required'],
@@ -34,7 +34,7 @@ return [
 
     'tags_counts_ttl' => [
         'path'        => 'modules.Tags.params.countsTtl',
-        'label'       => '[Tags] Кэш счётчиков облака, секунд',
+        'label'       => 'Кэш счётчиков облака, секунд',
         'description' => 'Через сколько облако заметит скрытую или опубликованную запись',
         'category'    => 'Tags',
         'rules'       => [
