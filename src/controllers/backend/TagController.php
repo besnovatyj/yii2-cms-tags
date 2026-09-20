@@ -23,6 +23,7 @@ use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Словарь тегов в админке: список, правка, удаление, чистка пустых и «ничьих», Select2-эндпоинт.
@@ -137,8 +138,14 @@ class TagController extends Controller
         ]);
     }
 
-    public function actionDeleteEmpty(): Response
+    public function actionDeleteEmpty(): Response|array
     {
+        if (Yii::$app->request->getIsAjax()) {
+            return $this->maintenanceAsJson(
+                fn (): string => 'Удалено пустых тегов: ' . $this->service->deleteEmpty() . '.',
+            );
+        }
+
         try {
             $count = $this->service->deleteEmpty();
             Yii::$app->session->setFlash('success', "Удалено пустых тегов: {$count}.");
@@ -148,8 +155,14 @@ class TagController extends Controller
         return $this->redirect(['empty']);
     }
 
-    public function actionPruneOrphans(): Response
+    public function actionPruneOrphans(): Response|array
     {
+        if (Yii::$app->request->getIsAjax()) {
+            return $this->maintenanceAsJson(
+                fn (): string => 'Удалено «ничьих» связей: ' . $this->service->pruneOrphans() . '.',
+            );
+        }
+
         try {
             $count = $this->service->pruneOrphans();
             Yii::$app->session->setFlash('success', "Удалено «ничьих» связей: {$count}.");
@@ -157,6 +170,53 @@ class TagController extends Controller
             $this->handleDomainException($e);
         }
         return $this->redirect(['index']);
+    }
+
+    /**
+     * Та же уборка, но для плитки дашборда: ответ — пересчитанная сводка словаря, а не редирект.
+     *
+     * Сделано ответвлением существующих экшенов, а не отдельными: операции ровно те же, и
+     * раздваивать их значило бы получить две точки, где однажды разойдутся права и поведение.
+     * Различается только конверт ответа.
+     *
+     * Ошибки отдаются нативным JSON-конвертом Yii ({@see \yii\web\ErrorHandler}) с реальным
+     * HTTP-статусом: формат выставлен до операции, поэтому и исключение уйдёт как JSON. Текст
+     * исключения наружу не выносится (вне отладки) — так же, как это делает
+     * {@see ControllerTrait::handleDomainException()} для обычных запросов.
+     *
+     * @param callable():string $operation уборка, возвращающая сообщение о результате
+     *
+     * @return array{message:string,stats:array{tags:int,assignments:int,empty:int,orphans:int}}
+     *
+     * @throws ServerErrorHttpException если уборка не удалась — причина уже в журнале.
+     */
+    private function maintenanceAsJson(callable $operation): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        try {
+            $message = $operation();
+        } catch (Throwable $e) {
+            Yii::$app->errorHandler->logException($e);
+
+            throw new ServerErrorHttpException(
+                YII_DEBUG ? $e->getMessage() : 'Не удалось выполнить операцию.',
+                0,
+                $e,
+            );
+        }
+
+        $stats = $this->service->stats();
+
+        return [
+            'message' => $message,
+            'stats' => [
+                'tags' => $stats->tags,
+                'assignments' => $stats->assignments,
+                'empty' => $stats->empty,
+                'orphans' => $stats->orphans,
+            ],
+        ];
     }
 
     /**

@@ -11,6 +11,7 @@ namespace Besnovatyj\Tags\services\manage;
 use Besnovatyj\Tags\entities\TagAssignment;
 use Besnovatyj\Tags\forms\backend\TagForm;
 use Besnovatyj\Tags\repositories\TagRepository;
+use Besnovatyj\Tags\results\TagStats;
 use Besnovatyj\Tags\services\TaggableRegistry;
 use Besnovatyj\Tags\services\TagAssigner;
 use Throwable;
@@ -52,6 +53,23 @@ final class TagManageService
     {
         $this->tags->remove($this->tags->get($id));
         $this->invalidate();
+    }
+
+    /**
+     * Сводка по словарю для панели админки.
+     *
+     * Считается запросами-счётчиками, а не выборками: плитка дашборда рисуется на каждой загрузке
+     * главной, и тянуть ради четырёх чисел сами теги незачем.
+     */
+    public function stats(): TagStats
+    {
+        return new TagStats(
+            tags: $this->tags->countAll(),
+            assignments: (int)TagAssignment::find()->count(),
+            empty: $this->tags->countEmpty(),
+            orphans: array_sum($this->orphanTypes()),
+            sources: count($this->registry->sources()),
+        );
     }
 
     public function findEmpty(): DataProviderInterface

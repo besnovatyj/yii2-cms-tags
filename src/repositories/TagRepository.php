@@ -84,6 +84,19 @@ class TagRepository
         ]);
     }
 
+    /** Всего тегов в словаре. */
+    public function countAll(): int
+    {
+        return (int)Tag::find()->count();
+    }
+
+    /** Сколько тегов без единой связи — тем же условием, что у {@see searchEmpty()}. */
+    public function countEmpty(): int
+    {
+        $used = TagAssignment::find()->select(['tag_id']);
+        return (int)Tag::find()->andWhere(['not in', 'id', $used])->count();
+    }
+
     public function deleteEmpty(): int
     {
         $used = TagAssignment::find()->select(['tag_id']);

@@ -8,12 +8,15 @@ declare(strict_types=1);
 
 namespace Besnovatyj\Tags;
 
+use Besnovatyj\Contracts\dashboard\DashboardWidgetDescriptor;
+use Besnovatyj\Contracts\dashboard\ProvidesDashboardWidgets;
 use Besnovatyj\Contracts\module\DeclaresModule;
 use Besnovatyj\Contracts\module\ProvidesAdminMenu;
 use Besnovatyj\Contracts\module\ProvidesDependencies;
 use Besnovatyj\Contracts\module\ProvidesMigrations;
 use Besnovatyj\Contracts\module\ProvidesOptions;
 use Besnovatyj\Kernel\module\CmsModule;
+use Besnovatyj\Tags\widgets\dashboard\TagsTile;
 
 /**
  * Модуль общих тегов.
@@ -32,6 +35,7 @@ use Besnovatyj\Kernel\module\CmsModule;
 class Module extends CmsModule implements
     DeclaresModule,
     ProvidesAdminMenu,
+    ProvidesDashboardWidgets,
     ProvidesDependencies,
     ProvidesMigrations,
     ProvidesOptions
@@ -49,4 +53,22 @@ class Module extends CmsModule implements
     public static function dependencies(): array { return require __DIR__ . '/config/dependencies.php'; }
     public static function migrationPath(): string { return __DIR__ . '/migrations'; }
     public static function migrationNamespace(): ?string { return __NAMESPACE__ . '\\migrations'; }
+
+    /**
+     * Плитка дашборда: размер словаря, число связей и уборка — пустые теги и «ничьи» связи.
+     *
+     * @return DashboardWidgetDescriptor[]
+     */
+    public static function dashboardWidgets(): array
+    {
+        return [
+            new DashboardWidgetDescriptor(
+                id: self::MODULE_ID . '.dictionary',
+                title: 'Теги',
+                tileClass: TagsTile::class,
+                iconClass: 'bi bi-tags',
+                priority: 420,
+            ),
+        ];
+    }
 }
