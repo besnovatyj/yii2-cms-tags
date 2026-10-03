@@ -6,6 +6,9 @@
 
 declare(strict_types=1);
 
+use Besnovatyj\Contracts\adminMenu\AdminMenuLocation;
+use Besnovatyj\Contracts\adminMenu\AdminMenuPlacement;
+
 return [
     // Словарь тегов
     [
@@ -17,13 +20,13 @@ return [
         },
         '_meta' => [
             'placements' => [
-                [
-                    'location'      => 'left-sidebar',
-                    'group'         => 'Tags',
-                    'groupIcon'     => 'bi bi-tags',
-                    'priority'      => 100,
-                    'groupPriority' => 650,
-                ],
+                new AdminMenuPlacement(
+                    location: AdminMenuLocation::LeftSidebar,
+                    group: 'Tags',
+                    groupIcon: 'bi bi-tags',
+                    groupPriority: 650,
+                    priority: 100,
+                ),
             ],
         ],
     ],
